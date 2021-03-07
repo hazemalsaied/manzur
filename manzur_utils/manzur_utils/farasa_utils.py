@@ -7,8 +7,8 @@ from farasa.stemmer import FarasaStemmer
 
 def tokenize_posttag(text):
     pos_tagger = FarasaPOSTagger()
-    postagged_text = pos_tagger.tag(text)
-    for txt in postagged_text.split('\n'):
+    pos_tagged_text = pos_tagger.tag(text)
+    for txt in pos_tagged_text.split('\n'):
         row_pos_tags = txt.split('/')
         pos_tags = list()
         for i, e in enumerate(row_pos_tags):
