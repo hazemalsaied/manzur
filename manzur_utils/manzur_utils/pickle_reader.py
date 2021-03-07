@@ -1,7 +1,7 @@
 import pandas as pd
 import html2text
 
-site_data_path = '/data/pickles/enabbaladi/'
+site_data_path = '/Users/hazem/Documents/manzur/data/pickles/enabbaladi/'
 
 
 def read_all_data(post_file_num, tag_file_num):
