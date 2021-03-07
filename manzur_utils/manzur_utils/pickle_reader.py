@@ -1,7 +1,24 @@
-import pandas as pd
 import html2text
+import pandas as pd
 
 site_data_path = '/Users/hazem/Documents/manzur/data/pickles/enabbaladi/'
+abstract_cats = {
+    'Syria': ['66'],
+    'Politics': ['11374', '1040', '31', '54077'],
+    'Economy': ['11378', '1039', '11379', '11512', '11380', '89388'],
+    'Society': ['6813', '1208', '11384', '381', '389', '89769', '1042'],
+    'Culture': ['43657', '11376', '14', '1043', '11387', '386', '13', '56383'],
+    'Human_rights': ['89389', '89387', '23', '6', '54078'],
+    'Syrian_exode': ['11377', '11373', '70035', '52951'],
+    'Opinion': ['1041', '11734', '1834', '70', '28563'],
+    'Life_style': ['10981', '53', '54076', '89789', '95030', '34'],
+    'Technologies': ['27', '89793', '11386', '11383'],
+    'In_English': ['11385', '48'],
+    'Personal_development': ['43658', '51763', '11381', '89790', '5763', '11375', '51764'],
+    'Others': ['47304', '1045', '82228', '51762', '382', '11', '50952', '95029', '382', '11'],
+    'Multimedia': ['2853', '73564', '42554', '10821', '11357', '1045', '1183', '82228'],
+    'Sports': ['5235', '11511', '11510', '47116', '95031']
+}
 
 
 def read_all_data(post_file_num, tag_file_num):
@@ -9,6 +26,11 @@ def read_all_data(post_file_num, tag_file_num):
     file = site_data_path + 'categories.pkl'
     categories = read_tags_file(file)
     posts = read_posts(post_file_num, tags, categories)
+    posts['abstract_cats'] = posts['categories'].apply(_get_abstract_cats)
+    for w in ['Others', 'Multimedia', 'Syria']:
+        posts['abstract_cats'] = posts['abstract_cats'].str.replace(f'|{w}', '', regex=False)
+        posts['abstract_cats'] = posts['abstract_cats'].str.replace(f'{w}|', '', regex=False)
+    posts.loc[(posts['abstract_cats'] == ''), 'abstract_cats'] = 'Politics'
     return posts, tags, categories
 
 
@@ -64,6 +86,16 @@ def read_tags_file(file):
     names = df.to_dict()['name']
     counts = df.to_dict()['count']
     for k in names:
-        if counts.get(k,0) >=1:
-            tags[k.strip()] = {'name': names[k], 'count': int(counts.get(k,0))}
+        if counts.get(k, 0) >= 1:
+            tags[k.strip()] = {'name': names[k], 'count': int(counts.get(k, 0))}
     return tags
+
+
+def _get_abstract_cats(cats):
+    abs_cats = set()
+    for c in cats:
+        if c:
+            for abst_cat, abst_cat_subcats in abstract_cats.items():
+                if str(c) in abst_cat_subcats:
+                    abs_cats.add(abst_cat)
+    return '|'.join(abs_cats)
