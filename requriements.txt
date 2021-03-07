@@ -1,0 +1,4 @@
+pandas==1.2.1
+requests==2.25.1
+html2text==2020.1.16
+farasapy==0.0.12
