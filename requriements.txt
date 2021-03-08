@@ -5,3 +5,5 @@ farasapy==0.0.12
 importlib==1.0.4
 scikit-learn==0.24.1
 matplotlib==3.3.4
+arabic-reshaper==2.1.1
+python-bidi==0.4.2
