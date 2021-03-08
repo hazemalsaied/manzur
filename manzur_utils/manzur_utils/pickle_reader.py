@@ -1,7 +1,8 @@
 import html2text
 import pandas as pd
 
-site_data_path = '/Users/hazem/Documents/manzur/data/pickles/enabbaladi/'
+site_data_path = '/Users/hazem/Documents/manzur/data/pickles/enabbaladi/scrapped/'
+site_preprocessed_data_path = '/Users/hazem/Documents/manzur/data/pickles/enabbaladi/preprocessed/'
 abstract_cats = {
     'Syria': ['66'],
     'Politics': ['11374', '1040', '31', '54077'],
@@ -21,11 +22,29 @@ abstract_cats = {
 }
 
 
+def picklize(posts, path, file_size=5000):
+    for i in range(int(len(posts) / file_size) + 1):
+        end = (i + 1) * file_size if (i + 1) * file_size < len(posts) else len(posts)
+        posts[i * file_size: end].to_pickle(path + f'posts_1_{i}.pkl')
+
+
+def read_preprocessed_data(post_file_num, tag_file_num):
+    tags = read_tags(tag_file_num)
+    file = site_data_path + 'categories.pkl'
+    categories = read_tags_file(file)
+    posts = list()
+    for i in range(post_file_num):
+        file = site_preprocessed_data_path + f'posts/posts_1_{i}.pkl'
+        posts.append(pd.read_pickle(file))
+    posts = pd.concat(posts)
+    return posts, tags, categories
+
+
 def read_all_data(post_file_num, tag_file_num):
     tags = read_tags(tag_file_num)
     file = site_data_path + 'categories.pkl'
     categories = read_tags_file(file)
-    posts = read_posts(post_file_num, tags, categories)
+    posts = read_posts(post_file_num, tags, categories, site_data_path)
     posts['abstract_cats'] = posts['categories'].apply(_get_abstract_cats)
     for w in ['Others', 'Multimedia', 'Syria']:
         posts['abstract_cats'] = posts['abstract_cats'].str.replace(f'|{w}', '', regex=False)
@@ -34,10 +53,10 @@ def read_all_data(post_file_num, tag_file_num):
     return posts, tags, categories
 
 
-def read_posts(post_file_num, tags, cats):
+def read_posts(post_file_num, tags, cats, path):
     posts = list()
     for i in range(post_file_num):
-        file = site_data_path + f'posts/posts_1_{i}.pkl'
+        file = path + f'posts/posts_1_{i}.pkl'
         cleaned_posts = clean_post_file(file, tags, cats)
         posts.append(cleaned_posts)
     return pd.concat(posts)
